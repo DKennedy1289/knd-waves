@@ -651,7 +651,7 @@ function kndSetImportPanelState(type,folder,tracks,message){
   panel.classList.remove('is-error','is-empty','is-success');
   panel.classList.add(type==='error'?'is-error':type==='empty'?'is-empty':'is-success');
   title.textContent=folder;
-  count.textContent=tracks&&tracks.length?(tracks.length===1?'1 música importada':tracks.length+' músicas importadas'):(message||'Aguardando músicas');
+  count.textContent=tracks&&tracks.length?(tracks.length===1?'1 de '+KND_MAX_IMPORT_FILES:tracks.length+' de '+KND_MAX_IMPORT_FILES):(message||'Aguardando músicas');
   list.innerHTML='';
   if(message){const row=document.createElement('div');row.className='folder-import-item import-message';row.innerHTML='<span class="folder-import-dot"></span><span class="folder-import-name"></span>';row.querySelector('.folder-import-name').textContent=message;list.appendChild(row);}
   (tracks||[]).slice(0,KND_MAX_IMPORT_FILES).forEach((t,i)=>{const row=document.createElement('div');row.className='folder-import-item';row.innerHTML='<span class="folder-import-index"></span><span class="folder-import-name"></span><span class="folder-import-meta"></span>';row.querySelector('.folder-import-index').textContent=String(i+1).padStart(2,'0');row.querySelector('.folder-import-name').textContent=t.title||t.folderPath||'Música';row.querySelector('.folder-import-meta').textContent=t.project||t.importFolder||'';list.appendChild(row);});
@@ -659,7 +659,9 @@ function kndSetImportPanelState(type,folder,tracks,message){
 }
 
 function showFolderImportPanel(folder,tracks){
-  kndSetImportPanelState('success','Importação pronta: '+folder,tracks,'Limite por importação: até '+KND_MAX_IMPORT_FILES+' músicas.');
+  const total=(tracks||[]).length;
+  const label=total===1?'1 música pronta':total+' músicas prontas';
+  kndSetImportPanelState('success',folder||'Importação pronta',tracks,label+' para reproduzir ou revisar na biblioteca. Limite seguro: '+KND_MAX_IMPORT_FILES+' por importação.');
   const panel=$('#folder-import-panel');if(panel)panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function showFolderImportError(message){
@@ -691,7 +693,7 @@ async function importFolderFiles(fileList,{autoplay=false}={}){
     }
     await loadTracks();S.context=folder;S.libFilter='all';S.libSearch='';renderLibrary();renderQueue();showFolderImportPanel(folder,imported);toast(count+' música(s) adicionada(s) à biblioteca com fila inteligente','s');
     if(autoplay){S.repeatMode='all';S.smartAutoplay=true;$('#repeat-btn')?.classList.add('on');const firstId=imported[0]?.id;const firstIndex=S.tracks.findIndex(t=>t.id===firstId);await playTrack(firstIndex>=0?firstIndex:0,folder);}
-    else{showPage('library');}
+    else{showPage('upload');}
   }catch(e){console.error(e);showFolderImportError(e.name==='QuotaExceededError'?'O armazenamento local do navegador está cheio.':'Não consegui finalizar a importação. Tente uma pasta menor ou outro navegador.');toast(e.name==='QuotaExceededError'?'Armazenamento cheio':'Erro ao importar pasta','e');}
   finally{if(btn){btn.textContent=oldText;btn.disabled=false;} if(btn2){btn2.textContent=oldText2;btn2.disabled=false;}}
 }
@@ -702,7 +704,7 @@ function bindUpload(){
   ['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('drag');}));
   ['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('drag');}));
   drop.addEventListener('drop',ev=>{const files=Array.from(ev.dataTransfer.files||[]).filter(isAudioFile);if(files.length){importFolderFiles(files,{autoplay:true});}});
-  fi.addEventListener('change',()=>{const files=Array.from(fi.files||[]).filter(isAudioFile);if(!files.length)return;importFolderFiles(files,{autoplay:false});fi.value='';});
+  fi.addEventListener('change',()=>{const files=Array.from(fi.files||[]).filter(isAudioFile);if(!files.length){showFolderImportError('Nenhum arquivo de áudio compatível foi selecionado.');return;}importFolderFiles(files,{autoplay:false});fi.value='';});
   $('#btn-open-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='0';folderFi.click();});
   $('#btn-auto-play-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='1';folderFi.click();});
   folderFi?.addEventListener('change',()=>{if(folderFi.files?.length)importFolderFiles(folderFi.files,{autoplay:folderFi.dataset.autoplay==='1'});folderFi.value='';});
@@ -1138,3 +1140,35 @@ setTimeout(()=>{
     });
   }
 },500);
+
+
+/* KND HARD FINAL RUNTIME PATCH */
+(function(){
+  function syncThemeChrome(){
+    try{
+      const root=document.documentElement;
+      const theme=root.getAttribute('data-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const color=theme==='light' ? '#f3f5f9' : '#040608';
+      document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content', color));
+      document.body.style.backgroundColor = color;
+    }catch(e){}
+  }
+  window.addEventListener('load', syncThemeChrome);
+  const obs=new MutationObserver(syncThemeChrome);
+  obs.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','style']});
+
+  window.addEventListener('load', function(){
+    const manual=document.getElementById('manual-upload-card');
+    const head=document.getElementById('manual-upload-toggle');
+    if(manual && head && !head.dataset.kndBound){
+      head.dataset.kndBound='1';
+      head.addEventListener('click', function(ev){
+        if(ev.target && ev.target.closest('input,textarea,select')) return;
+        manual.classList.toggle('is-collapsed');
+        const btn=manual.querySelector('.manual-toggle-btn');
+        if(btn) btn.textContent=manual.classList.contains('is-collapsed')?'Abrir':'Fechar';
+      });
+    }
+  });
+})();
+

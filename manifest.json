@@ -1,8 +1,8 @@
 {
-  "id": "/knd-waves/",
-  "name": "KND WAVES - Offline Music Player",
+  "id": "./",
+  "name": "KND WAVES - Spotify Offline Premium",
   "short_name": "KND WAVES",
-  "description": "Player offline premium com biblioteca por pasta, temas dinâmicos, fila inteligente e Cast limitado pelo navegador.",
+  "description": "Player offline premium com biblioteca local, upload múltiplo, fila inteligente, temas dinâmicos e experiência PWA.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

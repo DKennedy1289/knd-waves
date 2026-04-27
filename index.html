@@ -964,6 +964,365 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 .toast{bottom:calc(205px + env(safe-area-inset-bottom,0px))!important;max-width:calc(100vw - 32px);white-space:normal;text-align:center}
 @media(min-width:720px){.bottom-nav,.mini-bar{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:min(calc(100% - 32px),680px)!important}.bottom-nav{bottom:calc(18px + env(safe-area-inset-bottom,0px))!important}.mini-bar{bottom:calc(108px + env(safe-area-inset-bottom,0px))!important}}
 
+
+/* KND HARD SPOTIFY OFFLINE FINAL PATCH
+   Safe-area connected, premium bottom navigation, import clarity, settings polish, home 3D.
+*/
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-bottom-gap: 18px;
+  --premium-nav-h: 88px;
+  --premium-mini-h: 74px;
+}
+html{
+  background: var(--bg);
+}
+body{
+  background:
+    radial-gradient(circle at 50% -12%, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.16), transparent 34%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overscroll-behavior-y: none;
+}
+body::before,
+body::after{
+  content:"";
+  position: fixed;
+  left:0;
+  right:0;
+  z-index: 9998;
+  pointer-events:none;
+}
+body::before{
+  top:0;
+  height: calc(var(--safe-top) + 10px);
+  background: var(--bg);
+}
+body::after{
+  bottom:0;
+  height: calc(var(--safe-bottom) + 10px);
+  background: var(--bg);
+}
+.top-bar{
+  top:0 !important;
+  padding-top: calc(var(--safe-top) + 12px) !important;
+  background:
+    linear-gradient(180deg, var(--bg) 0%, rgba(4,6,8,.90) 72%, transparent 100%) !important;
+}
+:root[data-theme="light"] .top-bar{
+  background:
+    linear-gradient(180deg, var(--bg) 0%, rgba(243,245,249,.92) 72%, transparent 100%) !important;
+}
+.page{
+  padding-bottom: calc(var(--premium-mini-h) + var(--premium-nav-h) + var(--safe-bottom) + 58px) !important;
+}
+.hero-card,
+.featured-card,
+.stat-card,
+.mix-card,
+.settings-row,
+.folder-library-group,
+.manual-upload-card,
+.folder-import-panel,
+.upload-drop{
+  transform-style: preserve-3d;
+}
+#page-home .hero-card,
+#page-home .featured-card,
+#page-home .mix-card{
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.22),
+    0 2px 0 rgba(255,255,255,.08) inset,
+    0 0 60px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08) !important;
+  transform: perspective(1200px) rotateX(.7deg) translateZ(0);
+}
+:root[data-theme="light"] #page-home .hero-card,
+:root[data-theme="light"] #page-home .featured-card,
+:root[data-theme="light"] #page-home .mix-card{
+  box-shadow:
+    0 26px 60px rgba(35,46,70,.11),
+    0 1px 0 rgba(255,255,255,.95) inset,
+    0 0 48px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.09) !important;
+}
+.bottom-nav{
+  position: fixed !important;
+  left: 14px !important;
+  right: 14px !important;
+  bottom: calc(var(--safe-bottom) + var(--nav-bottom-gap)) !important;
+  height: var(--premium-nav-h) !important;
+  padding: 10px 12px !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035)),
+    var(--nav-bg) !important;
+  border: 1px solid rgba(var(--accent-r),var(--accent-g),var(--accent-b),.20) !important;
+  box-shadow:
+    0 18px 46px rgba(0,0,0,.26),
+    0 1px 0 rgba(255,255,255,.10) inset,
+    0 0 34px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08) !important;
+  backdrop-filter: blur(24px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+  overflow: visible !important;
+}
+.bottom-nav::before{
+  content:"";
+  position:absolute;
+  inset:-14px -8px auto;
+  height:18px;
+  border-radius:999px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.12), transparent);
+  filter: blur(10px);
+  opacity:.55;
+  pointer-events:none;
+}
+:root[data-theme="light"] .bottom-nav{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,248,252,.88)) !important;
+  border-color: rgba(16,24,40,.08) !important;
+  box-shadow:
+    0 18px 42px rgba(31,41,55,.14),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 0 28px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08) !important;
+}
+.nav-grid{
+  height:100% !important;
+  display:grid !important;
+  grid-template-columns: 1fr 1fr 76px 1fr 1fr !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.nav-tab{
+  min-width: 54px !important;
+  min-height: 62px !important;
+  border-radius: 22px !important;
+  font-size:.73rem !important;
+  font-weight:800 !important;
+  letter-spacing:.01em !important;
+  color: var(--text2) !important;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease !important;
+}
+.nav-tab svg{
+  width:25px !important;
+  height:25px !important;
+}
+.nav-tab span{
+  margin-top: 5px !important;
+}
+.nav-tab.on{
+  color: var(--text) !important;
+  background: rgba(var(--accent-r),var(--accent-g),var(--accent-b),.12) !important;
+  box-shadow: 0 10px 24px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.09) inset !important;
+}
+.nav-tab:active{
+  transform: scale(.96) translateY(1px) !important;
+}
+.nav-center{
+  width:70px !important;
+  height:70px !important;
+  border-radius:28px !important;
+  background: linear-gradient(135deg, var(--green), var(--blue)) !important;
+  color:#021006 !important;
+  box-shadow:
+    0 18px 42px rgba(57,255,20,.24),
+    0 10px 30px rgba(0,217,255,.18),
+    0 1px 0 rgba(255,255,255,.38) inset !important;
+}
+.nav-center svg{
+  width:31px !important;
+  height:31px !important;
+}
+.mini-bar{
+  left:14px !important;
+  right:14px !important;
+  bottom: calc(var(--safe-bottom) + var(--premium-nav-h) + var(--nav-bottom-gap) + 12px) !important;
+  min-height: var(--premium-mini-h) !important;
+  border-radius: 26px !important;
+  border: 1px solid rgba(var(--accent-r),var(--accent-g),var(--accent-b),.16) !important;
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.22),
+    0 0 30px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.07) !important;
+}
+:root[data-theme="light"] .mini-bar{
+  box-shadow:
+    0 14px 32px rgba(31,41,55,.11),
+    0 0 22px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.06) !important;
+}
+.upload-drop{
+  padding: 34px 20px !important;
+  border-radius: 28px !important;
+  border-color: rgba(var(--accent-r),var(--accent-g),var(--accent-b),.20) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.10), transparent 56%),
+    linear-gradient(180deg, var(--card-bg), var(--surface-alpha)) !important;
+}
+.upload-drop h3{
+  font-size:1.1rem !important;
+}
+.upload-drop p{
+  font-size:.86rem !important;
+  max-width: 260px;
+  margin: 0 auto;
+  line-height:1.45;
+}
+.upload-action-row{
+  position:relative;
+  z-index:5;
+  gap:12px !important;
+}
+.upload-action-row .btn,
+.folder-import-actions .btn{
+  min-height:58px !important;
+  border-radius:22px !important;
+  font-size:.94rem !important;
+  font-weight:900 !important;
+}
+.folder-import-panel{
+  border-radius: 28px !important;
+  padding: 18px !important;
+  background:
+    linear-gradient(180deg, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08), transparent 34%),
+    var(--card-bg) !important;
+}
+.folder-import-panel.is-error{
+  border-color: rgba(255,77,143,.36) !important;
+}
+.folder-import-panel.is-success{
+  border-color: rgba(var(--accent-r),var(--accent-g),var(--accent-b),.28) !important;
+}
+.folder-import-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.folder-import-title{
+  font-size:1.05rem !important;
+  line-height:1.25;
+}
+.folder-import-count{
+  flex:0 0 auto;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.12);
+  color:var(--text) !important;
+  font-weight:800;
+}
+.folder-import-list{
+  max-height: 290px;
+  overflow:auto;
+  padding-right:2px;
+  scrollbar-width: thin;
+}
+.folder-import-item{
+  min-height:44px;
+  padding:8px 10px;
+  border-radius:16px;
+  background: var(--surface-alpha);
+  border:1px solid var(--border);
+}
+.folder-import-index{
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  font-size:.70rem;
+  font-weight:900;
+  color:var(--text);
+  background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.12);
+  flex:0 0 auto;
+}
+.folder-import-name{
+  flex:1;
+  font-size:.84rem;
+  font-weight:750;
+}
+.folder-import-meta{
+  max-width:92px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:.70rem;
+  color:var(--muted);
+}
+.manual-upload-card.is-collapsed .manual-upload-body{
+  display:none !important;
+}
+.manual-upload-head{
+  cursor:pointer;
+}
+.manual-toggle-btn{
+  min-width:54px;
+  min-height:44px;
+  padding:0 14px;
+  border-radius:16px;
+  background:var(--surface-alpha-2);
+  color:var(--text);
+  font-weight:900;
+}
+.settings-group-label{
+  margin: 22px 4px 10px !important;
+  font-size:.68rem !important;
+}
+.settings-row{
+  min-height:72px !important;
+  padding:16px !important;
+  border-radius:22px !important;
+  margin-bottom:10px !important;
+  background:
+    linear-gradient(135deg, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.055), transparent 45%),
+    var(--card-bg) !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.08) !important;
+}
+.settings-row:first-of-type,
+.settings-row:last-of-type,
+.settings-row:only-of-type{
+  border-radius:22px !important;
+}
+.settings-row-icon{
+  width:48px !important;
+  height:48px !important;
+  border-radius:18px !important;
+  background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.12) !important;
+}
+.settings-row-title{
+  font-size:.94rem !important;
+  font-weight:850 !important;
+}
+.settings-row-sub{
+  font-size:.75rem !important;
+  line-height:1.35 !important;
+}
+.btn,
+.icon-btn,
+.mini-btn,
+.player-control,
+.control-btn{
+  min-width:48px;
+  min-height:48px;
+}
+@media (max-width:380px){
+  .bottom-nav{
+    left:10px !important;
+    right:10px !important;
+    height:84px !important;
+  }
+  .nav-grid{
+    grid-template-columns: 1fr 1fr 68px 1fr 1fr !important;
+    gap:4px !important;
+  }
+  .nav-tab{
+    min-width:48px !important;
+    font-size:.68rem !important;
+  }
+  .nav-center{
+    width:64px !important;
+    height:64px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1275,7 +1634,7 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
         <div class="upload-drop" id="upload-drop">
           <div class="upload-drop-icon"><svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M12 16V8M12 8l-4 4M12 8l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
           <h3>Importar músicas</h3>
-          <p>selecione uma ou várias faixas</p>
+          <p>Selecione várias músicas ou abra uma pasta. O limite seguro é de 30 músicas por importação.</p>
           <input type="file" accept="audio/*" multiple id="track-file" style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2"/>
         </div>
         <input type="file" accept="audio/*" id="folder-file" webkitdirectory directory multiple style="display:none"/>
@@ -1285,8 +1644,8 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
         </div>
         <div class="folder-import-panel" id="folder-import-panel">
           <div class="folder-import-head">
-            <div class="folder-import-title" id="folder-import-title">Pasta pronta</div>
-            <div class="folder-import-count" id="folder-import-count">0 músicas</div>
+            <div class="folder-import-title" id="folder-import-title">Importação pronta</div>
+            <div class="folder-import-count" id="folder-import-count">Aguardando</div>
           </div>
           <div class="folder-import-list" id="folder-import-list"></div>
           <div class="folder-import-actions">
