@@ -924,6 +924,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .nav-center{width:56px;height:56px}
 }
 
+
+/* KND final mobile UX corrections */
+:root{--nav-h:104px;--mini-h:78px}
+body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
+.page{padding-bottom:calc(var(--mini-h) + var(--nav-h) + 70px)!important}
+.upload-drop{margin-top:4px;min-height:172px!important;padding:30px 22px!important}
+.folder-import-panel{margin-top:16px!important}
+.folder-import-panel:not(.show){display:none!important}
+.folder-import-panel.is-empty{display:none!important}
+.folder-import-panel.is-error{border-color:rgba(255,86,86,.32)!important;background:linear-gradient(180deg,rgba(255,86,86,.08),var(--card-bg))!important}
+.folder-import-panel.is-success{border-color:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.24)!important}
+.folder-import-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.folder-import-title{font-size:1.08rem!important;line-height:1.2}
+.folder-import-count{font-size:.82rem!important;font-weight:700;color:var(--accent)!important;white-space:nowrap}
+.folder-import-list{max-height:330px;overflow:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
+.folder-import-item{min-height:44px;padding:9px 10px;border-radius:14px;background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.055);border:1px solid rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08);font-size:.84rem!important}
+.folder-import-index{width:30px;height:26px;border-radius:10px;display:grid;place-items:center;font-size:.68rem;font-weight:900;color:var(--accent);background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.10);flex:0 0 auto}
+.folder-import-meta{font-size:.68rem;color:var(--muted);margin-left:auto;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.folder-import-panel.is-error .folder-import-dot{background:#ff5c5c;box-shadow:0 0 12px rgba(255,92,92,.3)}
+.import-message{background:rgba(255,92,92,.07)!important;border-color:rgba(255,92,92,.14)!important;line-height:1.35;white-space:normal!important}
+.import-message .folder-import-name{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+.manual-upload-card{overflow:hidden;transition:max-height .28s ease,box-shadow .28s ease}
+.manual-upload-head{cursor:pointer;margin-bottom:0!important;gap:12px}
+.manual-toggle-btn{min-width:72px;height:42px;border-radius:14px;background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.10);border:1px solid rgba(var(--accent-r),var(--accent-g),var(--accent-b),.16);color:var(--text);font-weight:800}
+.manual-upload-body{margin-top:14px}
+.manual-upload-card.is-collapsed .manual-upload-body{display:none}
+.manual-upload-card.is-collapsed{padding-bottom:16px}
+.bottom-nav{left:14px!important;right:14px!important;bottom:calc(22px + env(safe-area-inset-bottom,0px))!important;height:86px!important;border-radius:30px!important;padding:8px 8px!important;overflow:hidden!important;box-shadow:0 18px 55px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.08) inset!important}
+.bottom-nav::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.06) 42%,rgba(255,255,255,.02));pointer-events:none;opacity:.7}
+:root[data-theme="light"] .bottom-nav{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(233,240,247,.92))!important;box-shadow:0 18px 55px rgba(30,45,70,.18),0 0 0 1px rgba(255,255,255,.86) inset!important}
+.nav-grid{position:relative;z-index:2;gap:4px}
+.nav-tab{min-height:68px!important;border-radius:22px!important;font-size:.72rem!important;font-weight:800!important;gap:8px!important}
+.nav-tab svg{width:28px!important;height:28px!important;stroke-width:1.85}
+.nav-tab.on{background:linear-gradient(180deg,rgba(var(--accent-r),var(--accent-g),var(--accent-b),.20),rgba(var(--accent-r),var(--accent-g),var(--accent-b),.075))!important}
+.nav-center{width:62px!important;height:62px!important;box-shadow:0 12px 30px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.32),0 0 0 9px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.09)!important}
+.nav-center svg{width:28px!important;height:28px!important}
+.mini-bar{bottom:calc(112px + env(safe-area-inset-bottom,0px))!important;left:14px!important;right:14px!important;height:74px!important;border-radius:26px!important;z-index:119!important}
+.toast{bottom:calc(205px + env(safe-area-inset-bottom,0px))!important;max-width:calc(100vw - 32px);white-space:normal;text-align:center}
+@media(min-width:720px){.bottom-nav,.mini-bar{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:min(calc(100% - 32px),680px)!important}.bottom-nav{bottom:calc(18px + env(safe-area-inset-bottom,0px))!important}.mini-bar{bottom:calc(108px + env(safe-area-inset-bottom,0px))!important}}
+
 </style>
 </head>
 <body>
@@ -1254,13 +1294,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
             <button class="btn btn-primary" id="folder-play-now" type="button" style="flex:1">Reproduzir tudo</button>
           </div>
         </div>
-        <div class="manual-upload-card">
-          <div class="manual-upload-head">
+        <div class="manual-upload-card is-collapsed" id="manual-upload-card">
+          <div class="manual-upload-head" id="manual-upload-toggle">
             <div>
               <strong>Cadastro manual</strong>
-              <span>Use só quando quiser editar título, capa e letra antes de salvar uma faixa.</span>
+              <span>Opcional. Use quando quiser editar título, capa e letra antes de salvar uma faixa.</span>
             </div>
+            <button class="manual-toggle-btn" type="button">Abrir</button>
           </div>
+          <div class="manual-upload-body">
         <div class="file-preview" id="file-preview">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" stroke="#39ff14" stroke-width="1.8" stroke-linecap="round"/><circle cx="6" cy="18" r="3" stroke="#39ff14" stroke-width="1.8"/><circle cx="18" cy="16" r="3" stroke="#39ff14" stroke-width="1.8"/></svg>
           <div style="flex:1;min-width:0"><div class="fp-name truncate" id="fp-name">—</div><div class="fp-size" id="fp-size">—</div></div>
@@ -1278,6 +1320,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <button class="btn btn-primary" id="btn-save" style="flex:1">Salvar localmente</button>
           <button class="btn btn-ghost" id="btn-clear" style="padding:15px 16px">Limpar</button>
         </div>
+          </div>
         </div>
       </div>
       <div class="ghost-footer">Desenvolvido por Dion Kennedy</div>

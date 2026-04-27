@@ -643,29 +643,40 @@ async function readLocalMetadata(file){
   }catch(e){}
   return meta;
 }
-function showFolderImportPanel(folder,tracks){
+const KND_MAX_IMPORT_FILES=30;
+
+function kndSetImportPanelState(type,folder,tracks,message){
   const panel=$('#folder-import-panel');if(!panel)return;
   const list=$('#folder-import-list'),title=$('#folder-import-title'),count=$('#folder-import-count');
-  title.textContent='Pasta importada: '+folder;
-  count.textContent=tracks.length===1?'1 música':tracks.length+' músicas';
+  panel.classList.remove('is-error','is-empty','is-success');
+  panel.classList.add(type==='error'?'is-error':type==='empty'?'is-empty':'is-success');
+  title.textContent=folder;
+  count.textContent=tracks&&tracks.length?(tracks.length===1?'1 música importada':tracks.length+' músicas importadas'):(message||'Aguardando músicas');
   list.innerHTML='';
-  tracks.slice(0,8).forEach(t=>{const row=document.createElement('div');row.className='folder-import-item';row.innerHTML='<span class="folder-import-dot"></span><span class="folder-import-name"></span>';row.querySelector('.folder-import-name').textContent=t.title||t.folderPath||'Música';list.appendChild(row);});
-  if(tracks.length>8){const more=document.createElement('div');more.className='folder-import-item';more.innerHTML='<span class="folder-import-dot"></span><span class="folder-import-name">+'+(tracks.length-8)+' outras músicas na biblioteca</span>';list.appendChild(more);}
+  if(message){const row=document.createElement('div');row.className='folder-import-item import-message';row.innerHTML='<span class="folder-import-dot"></span><span class="folder-import-name"></span>';row.querySelector('.folder-import-name').textContent=message;list.appendChild(row);}
+  (tracks||[]).slice(0,KND_MAX_IMPORT_FILES).forEach((t,i)=>{const row=document.createElement('div');row.className='folder-import-item';row.innerHTML='<span class="folder-import-index"></span><span class="folder-import-name"></span><span class="folder-import-meta"></span>';row.querySelector('.folder-import-index').textContent=String(i+1).padStart(2,'0');row.querySelector('.folder-import-name').textContent=t.title||t.folderPath||'Música';row.querySelector('.folder-import-meta').textContent=t.project||t.importFolder||'';list.appendChild(row);});
   panel.classList.add('show');
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function showFolderImportPanel(folder,tracks){
+  kndSetImportPanelState('success','Importação pronta: '+folder,tracks,'Limite por importação: até '+KND_MAX_IMPORT_FILES+' músicas.');
+  const panel=$('#folder-import-panel');if(panel)panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function showFolderImportError(message){
-  const panel=$('#folder-import-panel');if(!panel)return;
-  $('#folder-import-title').textContent='Nenhuma música importada';
-  $('#folder-import-count').textContent='0 músicas';
-  $('#folder-import-list').innerHTML='<div class="folder-import-item"><span class="folder-import-dot"></span><span class="folder-import-name">'+message+'</span></div>';
-  panel.classList.add('show');
+  kndSetImportPanelState('error','Nenhuma música importada',[],message);
 }
 async function importFolderFiles(fileList,{autoplay=false}={}){
   const incoming=Array.from(fileList||[]);
-  const files=incoming.filter(isAudioFile).sort((a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true,sensitivity:'base'}));
-  if(!files.length){showFolderImportError('Escolhi a pasta, mas não encontrei MP3, WAV, M4A, FLAC, AAC, OGG ou OPUS nela.');toast('Nenhum áudio encontrado na pasta','e');return;}
-  const folder=(files[0].webkitRelativePath?files[0].webkitRelativePath.split('/')[0]:(files.length>1?'Músicas selecionadas':'Pasta local'))||'Pasta local';
+  const audio=incoming.filter(isAudioFile).sort((a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true,sensitivity:'base'}));
+  const lrcMap=new Map(incoming.filter(f=>/\.lrc$/i.test(f.name)).map(f=>[cleanName(f.name).toLowerCase(),f]));
+  if(!audio.length){showFolderImportError('Não encontrei arquivos de áudio compatíveis. Use MP3, WAV, M4A, FLAC, AAC, OGG ou OPUS.');toast('Nenhum áudio encontrado','e');return;}
+  if(audio.length>KND_MAX_IMPORT_FILES){
+    const preview=audio.slice(0,KND_MAX_IMPORT_FILES).map(f=>({title:cleanName(f.name),project:'Selecionada'}));
+    kndSetImportPanelState('error','Limite de importação atingido',preview,'Você selecionou '+audio.length+' músicas. Importe no máximo '+KND_MAX_IMPORT_FILES+' por vez para evitar travamentos no celular.');
+    toast('Limite de '+KND_MAX_IMPORT_FILES+' músicas por vez','e');return;
+  }
+  const files=audio;
+  const folder=(files[0].webkitRelativePath?files[0].webkitRelativePath.split('/')[0]:(files.length>1?'Músicas selecionadas':'Música selecionada'))||'Músicas selecionadas';
   const btn=$('#btn-auto-play-folder'),btn2=$('#btn-open-folder'),oldText=btn?.textContent,oldText2=btn2?.textContent;
   if(btn){btn.textContent='Importando...';btn.disabled=true;} if(btn2){btn2.textContent='Importando...';btn2.disabled=true;}
   toast('Lendo pasta: '+files.length+' música(s)','i');
@@ -691,12 +702,12 @@ function bindUpload(){
   ['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('drag');}));
   ['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('drag');}));
   drop.addEventListener('drop',ev=>{const files=Array.from(ev.dataTransfer.files||[]).filter(isAudioFile);if(files.length){importFolderFiles(files,{autoplay:true});}});
-  fi.addEventListener('change',()=>{const files=Array.from(fi.files||[]).filter(isAudioFile);if(!files.length)return;if(files.length>1){importFolderFiles(files,{autoplay:true});fi.value='';return;}onFile(files[0]);});
+  fi.addEventListener('change',()=>{const files=Array.from(fi.files||[]).filter(isAudioFile);if(!files.length)return;importFolderFiles(files,{autoplay:false});fi.value='';});
   $('#btn-open-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='0';folderFi.click();});
   $('#btn-auto-play-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='1';folderFi.click();});
   folderFi?.addEventListener('change',()=>{if(folderFi.files?.length)importFolderFiles(folderFi.files,{autoplay:folderFi.dataset.autoplay==='1'});folderFi.value='';});
   $('#folder-go-library')?.addEventListener('click',e=>{e.preventDefault();showPage('library');});
-  $('#folder-play-now')?.addEventListener('click',async e=>{e.preventDefault();if(!S.tracks.length)return;S.repeatMode='all';S.smartAutoplay=true;await playTrack(S.currentIdx>=0?S.currentIdx:0,S.context||'Biblioteca');});
+  $('#folder-play-now')?.addEventListener('click',async e=>{e.preventDefault();if(!S.tracks.length){toast('Importe músicas primeiro','e');return;}S.repeatMode='all';S.smartAutoplay=true;$('#repeat-btn')?.classList.add('on');const ctx=S.context||'Biblioteca';const first=S.tracks.findIndex(t=>folderLabel(t)===ctx);await playTrack(first>=0?first:(S.currentIdx>=0?S.currentIdx:0),ctx);});
   function onFile(f){$('#file-preview').classList.add('show');$('#fp-name').textContent=f.name;$('#fp-size').textContent=fmtSz(f.size);if(!$('#track-title').value)$('#track-title').value=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');}
   $('#btn-save').addEventListener('click',saveTrack);
   $('#btn-clear').addEventListener('click',clearUpload);
@@ -1064,7 +1075,7 @@ function bindUI(){
 }
 
 /* ── SERVICE WORKER ───────────────────────────────────────── */
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
 /* ── INIT ─────────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded',async()=>{
@@ -1112,3 +1123,18 @@ function kndMaybeShowInstallPill(){
 window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();kndInstallPromptEvent=e;kndMaybeShowInstallPill();});
 window.addEventListener('appinstalled',()=>{document.getElementById('knd-install-pill')?.classList.remove('show');toast('KND WAVES instalado com sucesso.','s');});
 window.addEventListener('DOMContentLoaded',()=>setTimeout(kndMaybeShowInstallPill,4200));
+
+// KND final UX helpers
+setTimeout(()=>{
+  const card=document.getElementById('manual-upload-card');
+  const toggle=document.getElementById('manual-upload-toggle');
+  if(card&&toggle&&!toggle.dataset.bound){
+    toggle.dataset.bound='1';
+    toggle.addEventListener('click',(e)=>{
+      if(e.target&&e.target.closest('input,textarea,select'))return;
+      card.classList.toggle('is-collapsed');
+      const btn=card.querySelector('.manual-toggle-btn');
+      if(btn)btn.textContent=card.classList.contains('is-collapsed')?'Abrir':'Fechar';
+    });
+  }
+},500);
