@@ -1,4 +1,4 @@
-const CACHE = 'knd-waves-v5';
+const CACHE = 'knd-waves-v5-ux-premium-2';
 const SHELL = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {

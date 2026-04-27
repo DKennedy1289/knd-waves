@@ -665,7 +665,7 @@ async function importFolderFiles(fileList,{autoplay=false}={}){
   const incoming=Array.from(fileList||[]);
   const files=incoming.filter(isAudioFile).sort((a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true,sensitivity:'base'}));
   if(!files.length){showFolderImportError('Escolhi a pasta, mas não encontrei MP3, WAV, M4A, FLAC, AAC, OGG ou OPUS nela.');toast('Nenhum áudio encontrado na pasta','e');return;}
-  const folder=(files[0].webkitRelativePath||'Pasta local').split('/')[0]||'Pasta local';
+  const folder=(files[0].webkitRelativePath?files[0].webkitRelativePath.split('/')[0]:(files.length>1?'Músicas selecionadas':'Pasta local'))||'Pasta local';
   const btn=$('#btn-auto-play-folder'),btn2=$('#btn-open-folder'),oldText=btn?.textContent,oldText2=btn2?.textContent;
   if(btn){btn.textContent='Importando...';btn.disabled=true;} if(btn2){btn2.textContent='Importando...';btn2.disabled=true;}
   toast('Lendo pasta: '+files.length+' música(s)','i');
@@ -690,8 +690,8 @@ function bindUpload(){
   const drop=$('#upload-drop'),fi=$('#track-file'),folderFi=$('#folder-file');
   ['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('drag');}));
   ['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('drag');}));
-  drop.addEventListener('drop',ev=>{const files=Array.from(ev.dataTransfer.files||[]);if(files.length>1)importFolderFiles(files,{autoplay:true});else{const f=files[0];if(f?.type.startsWith('audio/')){fi.files=ev.dataTransfer.files;onFile(f);}}});
-  fi.addEventListener('change',()=>{if(fi.files[0])onFile(fi.files[0]);});
+  drop.addEventListener('drop',ev=>{const files=Array.from(ev.dataTransfer.files||[]).filter(isAudioFile);if(files.length){importFolderFiles(files,{autoplay:true});}});
+  fi.addEventListener('change',()=>{const files=Array.from(fi.files||[]).filter(isAudioFile);if(!files.length)return;if(files.length>1){importFolderFiles(files,{autoplay:true});fi.value='';return;}onFile(files[0]);});
   $('#btn-open-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='0';folderFi.click();});
   $('#btn-auto-play-folder')?.addEventListener('click',e=>{e.preventDefault();folderFi.dataset.autoplay='1';folderFi.click();});
   folderFi?.addEventListener('change',()=>{if(folderFi.files?.length)importFolderFiles(folderFi.files,{autoplay:folderFi.dataset.autoplay==='1'});folderFi.value='';});
